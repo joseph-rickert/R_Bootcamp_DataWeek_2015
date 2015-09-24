@@ -1,0 +1,198 @@
+---
+title: "4 - Plots"
+author: "JB Rickert"
+date: "September 28, 2015"
+output: html_document
+---
+## Base Graphics System
+There are three plotting systems in R: 
+1. Base R plots
+2. Lattice / grid graphice plots
+3. ggplot2
+
+### Some very basic plots
+Here are a few  basic plots:
+    - a simple scatter plot
+    - a histogram with normal curve
+    - a boxplot 
+    - kernel density plot
+```{r}
+par(mfrow=c(2,2))  						        # set up to draw multiple plots on the same chart
+# Basic scatter plot
+x <- rnorm(100)
+y <- rnorm(100)
+plot(x,y)
+
+#Histogram with normal density superimposed
+x <- rnorm(10000)							        # random draw from normal distribution
+                                      # plot histogram
+hist(x, freq = FALSE, col = "pink")			
+curve(dnorm,								          # plot normal density
+	  col = "dark blue",				        # set coor of curve
+	  lwd=2,								            # fill in the area under the curve
+	  add = TRUE)							          # add curve to existing plot
+# 
+# boxplot
+boxplot(x,								  	        # draw a boxplot
+	    col="yellow",						
+		main="Box plot")						
+# 
+# Kernel density plot with rug
+plot(density(x),							        # plot a kernel density estimate
+	 main="Kernel Density Estimate")		# add a title
+rug(x,col="red")  
+
+```  
+
+### Exploratory analysis with base graphics  
+
+The Duncan data frame has 45 rows and 4 columns. Data on the prestige and other characteristics of 45 U. S. occupations in 1950.    
+
+```{r}
+library(car)  	# Load the library containing the sample data
+dim(Duncan)			# How big is Duncan? 
+head(Duncan)
+attach(Duncan)  # Makes the columns available as variables in the glopal space.
+pairs(cbind(prestige,income,education),  	# pairs is function that produces a maatrix of scatter plots
+	panel=function(x,y){					          # define a function panel for the content of the matrix 
+		points(x,y)							              # plot the points
+		abline(lm(y~x), lty=2,col="blue")	    # add a linear regression 
+		lines(lowess(x,y),col="red")		      # add a nonlinear regression
+		},
+	diag.panel=function(x){					        # define a new panel for the diagonals
+		par(new=T)
+		hist(x,main="",axes=F,nclass=12)	    # put a histogram on each diagonal
+		}
+)
+```
+
+
+## Lattice (trellis) Graphics
+
+Lattice graphics are the second major plotting system in R. Plots built with lattice have a very distinctive look, but the real value is the ease of making trellis plots - graphs that display a variable conditioned on an other variable. Some useful websites are:
+http://www.statmethods.net/advgraphs/trellis.html
+http://user2007.org/program/presentations/sarkar.pdf   
+
+### Lattice histograms
+
+```{r}
+library(lattice)
+# Basic histogram
+histogram( ~ prestige | type,  			# Formula to plot variable by a factor
+	         data = Duncan,					  # Data set is an input
+			 nint=10,
+             layout = c(3,1), 
+			 aspect = 1,
+             xlab = "Type of Profession")
+
+histogram( ~ income | type, 
+	       data = Duncan,
+		   nint=5,
+           xlab = "Income",  
+		   main= "Hitogram by profession type",
+		   type = "density",
+           panel = function(x, ...) {
+              panel.histogram(x, ...)
+              panel.mathdensity(dmath = dnorm, col = "black",
+                                args = list(mean=mean(x),sd=sd(x)))
+          } )
+```  
+### Lattice Level Plot   
+
+```{r}
+attach(environmental)
+ozo.m <- loess((ozone^(1/3)) ~ wind * temperature * radiation,
+       parametric = c("radiation", "wind"), span = 1, degree = 2)
+w.marginal <- seq(min(wind), max(wind), length.out = 50)
+t.marginal <- seq(min(temperature), max(temperature), length.out = 50)
+r.marginal <- seq(min(radiation), max(radiation), length.out = 4)
+wtr.marginal <- list(wind = w.marginal, temperature = t.marginal,
+        radiation = r.marginal)
+grid <- expand.grid(wtr.marginal)
+grid[, "fit"] <- c(predict(ozo.m, grid))
+contourplot(fit ~ wind * temperature | radiation, data = grid,
+            cuts = 10, region = TRUE,
+            xlab = "Wind Speed (mph)",
+            ylab = "Temperature (F)",
+            main = "Cube Root Ozone (cube root ppb)")
+detach()
+```   
+### A 3D Lattice Plot
+
+```{r}
+## cloud.table
+cloud(prop.table(Titanic, margin = 1:3),
+      type = c("p", "h"), strip = strip.custom(strip.names = TRUE),
+      scales = list(arrows = FALSE, distance = 2), panel.aspect = 0.7,
+      zlab = "Proportion")[, 1]
+```   
+
+## ggplot2 Graphics
+
+ggplot is the third major plotting system for R.
+It is based on Leland Wilkinson's grammar of graphics. 
+Plots are built in layers.
+
+Some useful websites are:
+http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/GOG.html
+http://ggplot2.org/
+http://docs.ggplot2.org/current/
+http://www.cookbook-r.com/Graphs/
+
+Here we illustrate building up a multi-layer plot
+```{r}
+library(ggplot2)
+# Scatter plot
+# Form the pase of the plot
+p <- ggplot(Duncan, aes(income, prestige))  					
+# p		# This will produce an error since no layers are defined									
+# First layer specifies kind of plot
+layer1 <- geom_point(colour="red")					
+p + layer1		
+# Second layer builds facet plot
+layer2 <- facet_wrap(~ type)									        
+p + layer1 + layer2
+# Third layer add a regression line
+layer3 <- geom_smooth(aes(group=type),method="lm",size=1,se=F)	
+# Fourth layer add a title
+layer4 <- ggtitle("Duncan Prestige Data")						   
+p + layer1 + layer2 + layer3 + layer4
+```
+
+Here are ggplot2 analogs of the lattice plots above
+
+```{r}
+p <- ggplot(Duncan, aes(x = prestige, fill=type))
+p + geom_histogram(binwidth=20,aes(y = ..density..),position="dodge")
+
+# joran on StackOverflow
+# http://bit.ly/1KgTXAU
+library(plyr)
+grid <- with(Duncan, seq(min(income), max(income), length = length(income)))
+normaldens <- ddply(Duncan, "type", function(df) {
+  data.frame( 
+    predicted = grid,
+    density = dnorm(grid, mean(df$income), sd(df$income))
+  )
+})
+
+ggplot(Duncan, aes(x = income,fill = type)) +
+  geom_histogram(aes(y = ..density..),binwidth = 15) +
+  facet_grid(~ type) +
+  geom_line(data = normaldens, aes(x = predicted, y = density))+
+  scale_x_continuous(breaks=c(0,20,40,60,80)) + 
+  ggtitle("Histogram by Profession Type") +
+  theme(plot.title = element_text(lineheight=.8, face="bold"))
+
+```
+
+Adding a loess curve to "smooth" data
+
+```{r}
+# More examples from Steven Buechler of Notre Dame
+# http://ntrda.me/1KtHGYG
+dsmall <- diamonds[sample(nrow(diamonds), 500), ]
+ggplot(data = dsmall, aes(carat, price)) +
+       geom_point() + geom_smooth(method="loess") + 
+       ggtitle("Sample of Diamonds Data with Smoother")	
+```
