@@ -1,0 +1,44 @@
+---
+title: "1 - Getting Started"
+author: "JB Rickert"
+date: "September 28, 2015"
+output: html_document
+---
+
+### Download R 
+from CRAN: https://www.r-project.org/      
+or download RRO, a high performance distribution of R from https://mran.revolutionanalytics.com/download/
+
+Note that RRO is R is compiled with the Intel Math-Kernel Libraries  
+
+### Download R Studio Desktop    
+from https://www.rstudio.com/products/RStudio/ 
+
+### Download the files for this Bootcamp    
+from https://github.com/joseph-rickert/R_Bootcamp_DataWeek_2015 
+
+### Create a new RStudio Project 
+
+### Copy the course files into the project  
+
+### Install the packages used in this bootcamp 
+
+Here is the list of packages needed for each Module:  
+2 - First_Look_at_R:        ISwR    
+3 - Data_Structures:        NA    
+4 - Plots:                  car, lattice, ggplot2    
+5 - Plots2:                 ggplot2, car, reshape2, pracma, xts, dygraphs    
+6 - Functions:              NA    
+7 - Functions:              NA    
+8 - Data_Manipulation:      plyr, compare    
+9 - Clustering:             rattle    
+10 - Classification:        rattle, colorspace, ROCR, rpar, rpart.plot    
+11 - caret:                 caret, corrplot, doParallel, dplyr, gbm, kernlab, partykit, rpart    
+12 - SQLite:                DBI, RSQLite    
+
+### Before running the code for each module install the required packages.   
+For example, here is the R code to install the packages for module 4    
+
+pkgs4 <- c("car", "lattice", "ggplot2")    
+install.packages(pkgs=pkgs4)    
+
