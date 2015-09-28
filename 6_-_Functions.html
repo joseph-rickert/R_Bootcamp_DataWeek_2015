@@ -125,7 +125,7 @@ jmean(Oz)</code></pre>
 
 jmean2(Oz)</code></pre>
 <pre><code>## [1] 42.13</code></pre>
-<p>Why not give the user more control of the rounding process? he magic 3 dots … enable arguments to be passed to sub functions</p>
+<p>Why not give the user more control of the rounding process?<br />The magic 3 dots … enable arguments to be passed to sub functions</p>
 <pre class="r"><code>jmean3 &lt;- function(x,...){
     m &lt;- round(sum(x)/length(x),...)
     return(m)
@@ -209,7 +209,7 @@ rm(aq)          # remove aq from the global environment
 </div>
 <div id="some-important-helpful-functions" class="section level2">
 <h2>Some Important, Helpful Functions</h2>
-<p>Missing Values NA is the way to designate a missiong value as we saw above.</p>
+<p>Missing Values NA is the way to designate a missing value as we saw above.</p>
 <pre class="r"><code>z &lt;- c(1:3,NA)              
 z</code></pre>
 <pre><code>## [1]  1  2  3 NA</code></pre>
@@ -232,7 +232,7 @@ is.nan(z1)            # Only finds NaNs</code></pre>
 </div>
 <div id="getting-rid-of-nas" class="section level2">
 <h2>Getting rid of NAs</h2>
-<p>na.omit removes the entire row cantaining an NA from a data frame</p>
+<p>na.omit removes the entire row containing an NA from a data frame</p>
 <pre class="r"><code>a &lt;- 1:10
 b &lt;- letters[1:10]
 c &lt;- LETTERS[11:20]
